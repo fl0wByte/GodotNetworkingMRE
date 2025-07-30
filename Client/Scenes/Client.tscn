@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b3g4n6sly0o2p"]
+
+[ext_resource type="Script" uid="uid://cgtuhgn2h20ox" path="res://Client/Scripts/ClientNetworkManager.cs" id="1_r2vwy"]
+[ext_resource type="PackedScene" uid="uid://cj05km57sx3hn" path="res://Client/Scenes/ingame_ui.tscn" id="7_r2vwy"]
+
+[node name="NetworkManager" type="Node"]
+script = ExtResource("1_r2vwy")
+
+[node name="IngameUI" parent="." instance=ExtResource("7_r2vwy")]
+scale = Vector2(1.00176, 1.00496)
