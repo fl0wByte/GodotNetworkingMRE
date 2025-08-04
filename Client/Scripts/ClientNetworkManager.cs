@@ -1,13 +1,15 @@
 using Godot;
 using System;
+using System.Diagnostics;
 
 public partial class ClientNetworkManager : Node
 {
-    [Export]
-    public string ServerAddress = "localhost";
+    [Export] public string ServerAddress = "localhost";
     [Export] public int Port = 5000;
     public static ClientNetworkManager Instance { get; private set; }
     public ENetMultiplayerPeer peer = new();
+    private Stopwatch _handshakeTimer;
+
     public double Ping =>
      GetServerPacketPeer()
          ?.GetStatistic(ENetPacketPeer.PeerStatistic.RoundTripTime) ?? 0;
@@ -30,11 +32,12 @@ public partial class ClientNetworkManager : Node
 
     public override void _Ready()
     {
-         ConnectToServer();
+        ConnectToServer();
     }
 
     public void ConnectToServer()
     {
+        _handshakeTimer = Stopwatch.StartNew();
         var connection = peer.CreateClient(ServerAddress, Port, 2, 0, 0);
 
         if (connection != Error.Ok)
@@ -70,6 +73,8 @@ public partial class ClientNetworkManager : Node
     private void OnConnectedToServer()
     {
         GD.Print("[Client] Connection to game server succeeded.");
+        _handshakeTimer.Stop();
+        GD.Print($"[Client] Handshake took {_handshakeTimer.Elapsed.TotalMilliseconds:F2} ms");
     }
 
     private void OnServerDisconnected()

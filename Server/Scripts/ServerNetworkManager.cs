@@ -10,6 +10,10 @@ public partial class ServerNetworkManager : Node
     [Export] public int MaxPlayers = 4095;
     private ENetMultiplayerPeer peer = new();
     private int connectionCount;
+    private const double FrameThresholdSeconds = 1.0 / 60.0;           // ≈ 0.0166667 s
+    private int _physicsProcessCount = 0;
+    private double _accumulatedTime = 0.0;
+
 
     public override void _EnterTree()
     {
@@ -34,6 +38,25 @@ public partial class ServerNetworkManager : Node
 
     public override void _PhysicsProcess(double delta)
     {
+        _physicsProcessCount++;
+        _accumulatedTime += delta;
+
+        if (delta > FrameThresholdSeconds)
+        {
+            GD.PrintErr($"[Warning] _PhysicsProcess delta too high: {delta}s (> {FrameThresholdSeconds:F2}s)");
+        }
+
+        // Every one second…
+        if (_accumulatedTime >= 1.0)
+        {
+            GD.Print($"[Performance] PhysicsProcess/sec = {_physicsProcessCount}");
+            GD.Print($"[Server] Connected clients: {connectionCount}");
+
+            // reset
+            _physicsProcessCount = 0;
+            _accumulatedTime -= 1.0;
+        }
+
         SendConnectionCountToAllClients();
     }
 
