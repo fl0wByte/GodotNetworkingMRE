@@ -7,7 +7,8 @@ public partial class ClientNetworkManager : Node
     [Export] public string ServerAddress = "localhost";
     [Export] public int Port = 5000;
     public static ClientNetworkManager Instance { get; private set; }
-    public ENetMultiplayerPeer peer = new();
+    private ENetMultiplayerPeer peer = new();
+    private SceneMultiplayer api = new();
     private Stopwatch _handshakeTimer;
 
     public double Ping =>
@@ -47,26 +48,30 @@ public partial class ClientNetworkManager : Node
 
         peer.Host.Compress(ENetConnection.CompressionMode.None);
 
-        Multiplayer.MultiplayerPeer = peer;
-        GD.Print($"[Client] Connecting to server at {ServerAddress}:{Port}");
 
-        Multiplayer.ConnectionFailed += OnConnectionFailed;
-        Multiplayer.ConnectedToServer += OnConnectedToServer;
-        Multiplayer.ServerDisconnected += OnServerDisconnected;
+        api.MultiplayerPeer = peer;
+
+
+        GetTree().SetMultiplayer(api);
+
+        GD.Print($"[Client] Connecting to server at {ServerAddress}:{Port}");
+        api.ConnectionFailed += OnConnectionFailed;
+        api.ConnectedToServer += OnConnectedToServer;
+        api.ServerDisconnected += OnServerDisconnected;
     }
 
     private void OnConnectionFailed()
     {
         GD.Print("[Client] Connection to game server failed.");
 
-        Multiplayer.ConnectionFailed -= OnConnectionFailed;
-        Multiplayer.ConnectedToServer -= OnConnectedToServer;
-        Multiplayer.ServerDisconnected -= OnServerDisconnected;
+        api.ConnectionFailed -= OnConnectionFailed;
+        api.ConnectedToServer -= OnConnectedToServer;
+        api.ServerDisconnected -= OnServerDisconnected;
 
-        if (Multiplayer.MultiplayerPeer != null)
+        if (api.MultiplayerPeer != null)
         {
             peer.Close();
-            Multiplayer.MultiplayerPeer = null;
+            api.MultiplayerPeer = null;
         }
     }
 
@@ -85,7 +90,7 @@ public partial class ClientNetworkManager : Node
 
     private ENetPacketPeer GetServerPacketPeer()
     {
-        if (Multiplayer.MultiplayerPeer is not ENetMultiplayerPeer enet)
+        if (api.MultiplayerPeer is not ENetMultiplayerPeer enet)
             return null;
 
         if (enet.GetConnectionStatus() != MultiplayerPeer.ConnectionStatus.Connected)

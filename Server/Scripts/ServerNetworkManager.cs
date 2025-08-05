@@ -9,6 +9,7 @@ public partial class ServerNetworkManager : Node
     [Export] public int Port = 5000;
     [Export] public int MaxPlayers = 4095;
     private ENetMultiplayerPeer peer = new();
+    private SceneMultiplayer api = new();
     private int connectionCount;
     private const double FrameThresholdSeconds = 1.0 / 60.0;           // ≈ 0.0166667 s
     private int _physicsProcessCount = 0;
@@ -69,17 +70,26 @@ public partial class ServerNetworkManager : Node
             return;
         }
         peer.Host.Compress(ENetConnection.CompressionMode.None);
-        Multiplayer.MultiplayerPeer = peer;
+
+
+        api.ServerRelay = false;
+        api.MultiplayerPeer = peer;
+
+        GetTree().SetMultiplayer(api);
 
         GD.Print($"[Server] Server started on port {Port}");
 
-        Multiplayer.PeerConnected += PeerConnected;
-        Multiplayer.PeerDisconnected += PeerDisconnected;
+        api.PeerConnected += PeerConnected;
+        api.PeerDisconnected += PeerDisconnected;
     }
 
     private void PeerConnected(long id)
     {
         GD.Print($"[Server] User connected with ID: {id}");
+        ENetPacketPeer packetPeer = peer.GetPeer((int)id);
+        packetPeer.SetTimeout(1500, 30000, 60000);
+        packetPeer.PingInterval(2000);
+
         connectionCount++;
     }
 
