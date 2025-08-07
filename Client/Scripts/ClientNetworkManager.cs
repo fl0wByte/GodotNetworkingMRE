@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 
 public partial class ClientNetworkManager : Node
 {
@@ -99,9 +100,9 @@ public partial class ClientNetworkManager : Node
         return enet.GetPeer(1);
     }
 
-    [Rpc(MultiplayerApi.RpcMode.Authority, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable, TransferChannel = 1)]
-    public void ReceiveConnectionCount(int connectionsCount)
+    [Rpc(MultiplayerApi.RpcMode.Authority, CallLocal = false, TransferMode = MultiplayerPeer.TransferModeEnum.Unreliable, TransferChannel = 0)]
+    public void ReceiveArray(Array array)
     {
-        MonitorUI.Instance.SetConnectionCount(connectionsCount);
+        return;
     }
 }

@@ -33,18 +33,18 @@ public partial class MonitorUI : Control
 
     public override void _Process(double delta)
     {
-        if (ClientNetworkManager.Instance != null)
-        {
-            PingLabel.Text = $"Ping: {ClientNetworkManager.Instance.Ping} ms";
-        }
-        else
-        {
-            PingLabel.Text = "Ping: N/A";
-        }
+        int ping = (int)GetServerPacketPeer()?.GetStatistic(ENetPacketPeer.PeerStatistic.RoundTripTime);
+        PingLabel.Text = $"Ping: {ping:F0} ms";
     }
 
-    public void SetConnectionCount(int count)
+    private ENetPacketPeer GetServerPacketPeer()
     {
-        ConnectionCountLabel.Text = $"Connections: {count}";
+        if (Multiplayer.MultiplayerPeer is not ENetMultiplayerPeer enet)
+            return null;
+
+        if (enet.GetConnectionStatus() != MultiplayerPeer.ConnectionStatus.Connected)
+            return null;
+
+        return enet.GetPeer(1);
     }
 }

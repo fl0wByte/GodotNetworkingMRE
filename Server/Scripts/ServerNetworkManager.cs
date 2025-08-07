@@ -37,6 +37,11 @@ public partial class ServerNetworkManager : Node
         StartServer();
     }
 
+    public override void _Process(double delta)
+    {
+        api.Poll();
+    }
+
     public override void _PhysicsProcess(double delta)
     {
         _physicsProcessCount++;
@@ -70,7 +75,7 @@ public partial class ServerNetworkManager : Node
             return;
         }
         peer.Host.Compress(ENetConnection.CompressionMode.None);
-
+        DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
 
         api.ServerRelay = false;
         api.MultiplayerPeer = peer;
