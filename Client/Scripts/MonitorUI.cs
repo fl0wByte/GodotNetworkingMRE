@@ -33,8 +33,6 @@ public partial class MonitorUI : Control
 
     public override void _Process(double delta)
     {
-        int ping = (int)GetServerPacketPeer()?.GetStatistic(ENetPacketPeer.PeerStatistic.RoundTripTime);
-        PingLabel.Text = $"Ping: {ping:F0} ms";
     }
 
     private ENetPacketPeer GetServerPacketPeer()

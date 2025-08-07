@@ -1,6 +1,7 @@
 [gd_scene load_steps=2 format=3 uid="uid://bi11fvbplxljn"]
 
-[ext_resource type="Script" uid="uid://j32chigkdn36" path="res://Server/Scripts/GDServerNetworkManager.gd" id="1_wchsk"]
+[ext_resource type="Script" uid="uid://b5rur8ctpudv8" path="res://Server/Scripts/TelepathyServer.cs" id="1_wchsk"]
 
 [node name="NetworkManager" type="Node"]
 script = ExtResource("1_wchsk")
+Port = 5007
